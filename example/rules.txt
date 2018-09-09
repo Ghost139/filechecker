@@ -1,0 +1,19 @@
+..
+file1
+file2
+file3
+
+*folder1
+file4
+file5
+
+*folder2
+file 6
+file 7
+
+*folder2_3
+file4
+file5
+file 6
+file 7
+file8
