@@ -8,9 +8,11 @@ import java.util.stream.Stream;
 
 public class RuleFileStreamParser implements FileParser<Stream<String>> {
 
+    private final static String RULE_FILE_NAME = "_rules.txt";
+
     @Override
     public Stream<String> parse(final String path) {
-        final Path rulesFilePath = Paths.get(path);
+        final Path rulesFilePath = Paths.get(path + RULE_FILE_NAME);
         try {
             return Files
                     .lines(rulesFilePath)
