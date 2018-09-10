@@ -1,6 +1,6 @@
 package com.khodyka.filechecker.logic.processor;
 
-public interface RuleValueProcessor {
+public interface RuleFileProcessor {
 
     void process(String ruleFilePath);
 }
