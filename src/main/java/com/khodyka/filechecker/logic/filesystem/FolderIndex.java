@@ -6,13 +6,13 @@ import java.util.Map;
 
 public final class FolderIndex {
 
-    private final Map<String, List<String>> folderNameToFolderFilde = new HashMap<>();
+    private final Map<String, List<String>> folderNameToFolderFiles = new HashMap<>();
 
     public void addIndex(final String folderName, final List<String> filesInFolder) {
-        folderNameToFolderFilde.put(folderName, filesInFolder);
+        folderNameToFolderFiles.put(folderName, filesInFolder);
     }
 
-    public List<String> getFolderFiles(String folderName) {
-        return folderNameToFolderFilde.get(folderName);
+    public List<String> getFolderFiles(final String folderName) {
+        return folderNameToFolderFiles.get(folderName);
     }
 }

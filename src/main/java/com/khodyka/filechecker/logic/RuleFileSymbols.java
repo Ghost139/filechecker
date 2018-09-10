@@ -1,10 +1,9 @@
 package com.khodyka.filechecker.logic;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+public final class RuleFileSymbols {
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class RuleFileSympols {
+    private RuleFileSymbols() {
+    }
 
     public static final String ROOT_FOLDER = "..";
     public static final String FOLDER_PREFIX = "*";
