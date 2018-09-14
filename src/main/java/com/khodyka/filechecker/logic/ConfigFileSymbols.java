@@ -1,8 +1,8 @@
 package com.khodyka.filechecker.logic;
 
-public final class RuleFileSymbols {
+public final class ConfigFileSymbols {
 
-    private RuleFileSymbols() {
+    private ConfigFileSymbols() {
     }
 
     public static final String ROOT_FOLDER = "..";

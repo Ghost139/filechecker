@@ -1,6 +1,6 @@
 package com.khodyka.filechecker.logic.filesystem.indexer;
 
-import com.khodyka.filechecker.logic.RuleFileSymbols;
+import com.khodyka.filechecker.logic.ConfigFileSymbols;
 import com.khodyka.filechecker.logic.filesystem.FolderIndex;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class NioFolderIndexer implements FolderIndexer<FolderIndex> {
         final Path rootFolder = Paths.get(rootPath);
         final List<String> rootFolderFiles = getFolderFilesNames(rootFolder);
 
-        folderIndex.addIndex(RuleFileSymbols.ROOT_FOLDER, rootFolderFiles);
+        folderIndex.addIndex(ConfigFileSymbols.ROOT_FOLDER, rootFolderFiles);
         try {
             Files
                     .walk(rootFolder)
@@ -38,7 +38,7 @@ public class NioFolderIndexer implements FolderIndexer<FolderIndex> {
     }
 
     private void doIndexFolder(final Path folderName) {
-        folderIndex.addIndex(RuleFileSymbols.FOLDER_PREFIX + folderName.getFileName().toString(),
+        folderIndex.addIndex(ConfigFileSymbols.FOLDER_PREFIX + folderName.getFileName().toString(),
                 getFolderFilesNames(folderName));
     }
 
