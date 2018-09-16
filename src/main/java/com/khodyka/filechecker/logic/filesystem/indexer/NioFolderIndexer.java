@@ -1,25 +1,27 @@
 package com.khodyka.filechecker.logic.filesystem.indexer;
 
 import com.khodyka.filechecker.logic.ConfigFileSymbols;
-import com.khodyka.filechecker.logic.filesystem.FolderIndex;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class NioFolderIndexer implements FolderIndexer<FolderIndex> {
+public class NioFolderIndexer implements FolderIndexer<Map<String, List<String>>> {
 
-    private static final FolderIndex folderIndex = new FolderIndex();
+    private final Map<String, List<String>> index = new HashMap<>();
 
     @Override
-    public FolderIndex doIndexFolderTree(final String rootPath) {
+    public Map<String, List<String>> doIndexFolderTree(final String rootPath) {
         final Path rootFolder = Paths.get(rootPath);
         final List<String> rootFolderFiles = getFolderFilesNames(rootFolder);
 
-        folderIndex.addIndex(ConfigFileSymbols.ROOT_FOLDER, rootFolderFiles);
+        index.put(ConfigFileSymbols.ROOT_FOLDER, rootFolderFiles);
+
         try {
             Files
                     .walk(rootFolder)
@@ -27,18 +29,13 @@ public class NioFolderIndexer implements FolderIndexer<FolderIndex> {
                     .filter(folder -> folder != rootFolder)
                     .forEach(this::doIndexFolder);
         } catch (IOException e) {
-            throw new RuntimeException("Path doesn't exist: " + rootFolder);
+            throw new RuntimeException("Некорректный путь: " + rootPath);
         }
-        return folderIndex;
-    }
-
-    @Override
-    public FolderIndex getIndex() {
-        return folderIndex;
+        return index;
     }
 
     private void doIndexFolder(final Path folderName) {
-        folderIndex.addIndex(ConfigFileSymbols.FOLDER_PREFIX + folderName.getFileName().toString(),
+        index.put(ConfigFileSymbols.FOLDER_PREFIX + folderName.getFileName().toString(),
                 getFolderFilesNames(folderName));
     }
 
@@ -52,7 +49,7 @@ public class NioFolderIndexer implements FolderIndexer<FolderIndex> {
                     .map(this::getFilenameWithoutExtension)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException("Path doesn't exist: " + folderPath);
+            throw new RuntimeException("Некорректный путь: " + folderPath, e);
         }
     }
 

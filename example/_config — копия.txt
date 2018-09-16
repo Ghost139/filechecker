@@ -1,10 +1,15 @@
+project: xxxas2
+name: qweqw123
+volume: 123123
+
 ..
 file1
 file2
 file3
 
+
 *folder1
-file4
+file4 // asdasdas
 file5
 
 *folder2

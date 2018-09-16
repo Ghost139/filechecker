@@ -1,0 +1,29 @@
+# project: name1
+# detail: detail1
+# volume: 123
+
+..
+file1
+file2
+file3
+file12321.txt
+
+*folder1
+file4
+file5 // test
+
+*folder2
+file 6
+file 7
+file10.gif
+
+*folder2_1
+file4.txt
+file5.txt
+file 6
+file 7
+file8.txt
+file9.mvn
+file10
+
+*folder3

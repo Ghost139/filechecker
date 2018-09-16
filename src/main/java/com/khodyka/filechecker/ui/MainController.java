@@ -1,7 +1,6 @@
 package com.khodyka.filechecker.ui;
 
 import com.khodyka.filechecker.logic.CheckerEngine;
-import com.khodyka.filechecker.logic.filesystem.FolderIndex;
 import com.khodyka.filechecker.logic.filesystem.indexer.FolderIndexer;
 import com.khodyka.filechecker.logic.filesystem.indexer.NioFolderIndexer;
 import com.khodyka.filechecker.logic.parser.ConfigFileParser;
@@ -11,13 +10,14 @@ import com.khodyka.filechecker.ui.swing.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 
 import static com.khodyka.filechecker.ui.Fonts.LABEL_FONT;
 import static com.khodyka.filechecker.ui.Fonts.TEXT_FIELD_FONT;
 
 public class MainController {
 
-    private final FolderIndexer<FolderIndex> folderIndexer = new NioFolderIndexer();
+    private final FolderIndexer<Map<String, List<String>>> folderIndexer = new NioFolderIndexer();
     private final FileParser<List<String>> fileParser = new ConfigFileParser();
     private final CheckerEngine checkerEngine = new CheckerEngine(folderIndexer, fileParser);
 
@@ -52,10 +52,14 @@ public class MainController {
 
     public void runSearch() {
         runSearchBtn.addActionListener(e -> {
-            final int result = checkerEngine
-                    .checkFiles(configFilePanel.getTextFieldPath(), searchFolderPanel.getTextFieldPath());
-            if (result == 1) {
-                JOptionPane.showMessageDialog(mainFrame, "Поиск завершен!");
+            try {
+                final int result = checkerEngine.checkFiles(configFilePanel.getTextFieldPath().trim(),
+                        searchFolderPanel.getTextFieldPath().trim());
+                if (result == 1) {
+                    JOptionPane.showMessageDialog(mainFrame, "Поиск завершен!");
+                }
+            } catch (final Exception ex) {
+                JOptionPane.showMessageDialog(mainFrame, ex);
             }
         });
     }
