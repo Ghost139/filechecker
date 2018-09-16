@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-import static com.khodyka.filechecker.logic.ConfigFileSymbols.INCLUDED_COMMENT_PREFIX;
+import static com.khodyka.filechecker.logic.ConfigFileSymbols.INCLUDE_META_INFO_PREFIX;
+import static com.khodyka.filechecker.logic.ConfigFileUtils.isFolderDefinition;
+import static com.khodyka.filechecker.logic.ConfigFileUtils.isIncludedMetaInfoDefinition;
 
 public class CheckerEngine {
 
@@ -40,7 +42,7 @@ public class CheckerEngine {
                 final List<String> folderFiles = getFolderFilesDefinedInConfigFile(currentFolderName, configFileLines);
                 missedFilesLoggerLines.addAll(folderFiles);
             }
-            if (isIncludedCommentDefinition(configFileLine)) {
+            if (isIncludedMetaInfoDefinition(configFileLine)) {
                 missedFilesLoggerLines.add(configFileLine);
             }
             if (isFileMissed(filesInCurrentFolder, configFileLine)) {
@@ -54,18 +56,10 @@ public class CheckerEngine {
         return 1;
     }
 
-    private boolean isFolderDefinition(final String configLine) {
-        return configLine.equals(ConfigFileSymbols.ROOT_FOLDER)
-                || configLine.startsWith(ConfigFileSymbols.FOLDER_PREFIX);
-    }
 
     private boolean isFileMissed(final List<String> filesInCurrentFolder, final String configFileLine) {
         return filesInCurrentFolder != null
                 && !filesInCurrentFolder.contains(configFileLine);
-    }
-
-    private boolean isIncludedCommentDefinition(final String configLine) {
-        return configLine.startsWith(INCLUDED_COMMENT_PREFIX);
     }
 
     private boolean isFolderNameNotLoggedYet(final String configLine, final List<String> loggerFileLines) {
@@ -82,7 +76,7 @@ public class CheckerEngine {
             if (isFolderDefinition(line)) {
                 break;
             }
-            if (isIncludedCommentDefinition(line)) {
+            if (isIncludedMetaInfoDefinition(line)) {
                 continue;
             }
             if (!line.isEmpty()) {

@@ -1,6 +1,7 @@
 package com.khodyka.filechecker.logic.filesystem.indexer;
 
 import com.khodyka.filechecker.logic.ConfigFileSymbols;
+import com.khodyka.filechecker.logic.ConfigFileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,28 +19,28 @@ public class NioFolderIndexer implements FolderIndexer<Map<String, List<String>>
     @Override
     public Map<String, List<String>> doIndexFolderTree(final String rootPath) {
         final Path rootFolder = Paths.get(rootPath);
-        final List<String> rootFolderFiles = getFolderFilesNames(rootFolder);
+        final List<String> filesInRootFolder = getFilesFromFolder(rootFolder);
 
-        index.put(ConfigFileSymbols.ROOT_FOLDER, rootFolderFiles);
+        index.put(ConfigFileSymbols.ROOT_FOLDER, filesInRootFolder);
 
         try {
             Files
                     .walk(rootFolder)
                     .filter(Files::isDirectory)
                     .filter(folder -> folder != rootFolder)
-                    .forEach(this::doIndexFolder);
+                    .forEach(this::addFolderAndFilesToIndex);
         } catch (IOException e) {
             throw new RuntimeException("Некорректный путь: " + rootPath);
         }
         return index;
     }
 
-    private void doIndexFolder(final Path folderName) {
+    private void addFolderAndFilesToIndex(final Path folderName) {
         index.put(ConfigFileSymbols.FOLDER_PREFIX + folderName.getFileName().toString(),
-                getFolderFilesNames(folderName));
+                getFilesFromFolder(folderName));
     }
 
-    private List<String> getFolderFilesNames(final Path folderPath) {
+    private List<String> getFilesFromFolder(final Path folderPath) {
         try {
             return Files
                     .walk(folderPath, 1)
