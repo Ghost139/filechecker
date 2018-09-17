@@ -18,7 +18,7 @@ import static com.khodyka.filechecker.ui.Fonts.TEXT_FIELD_FONT;
 public class MainController {
 
     private final FolderIndexer<Map<String, List<String>>> folderIndexer = new NioFolderIndexer();
-    private final FileParser<List<String>> fileParser = new ConfigFileParser();
+    private final FileParser<Map<String, List<String>>> fileParser = new ConfigFileParser();
     private final CheckerEngine checkerEngine = new CheckerEngine(folderIndexer, fileParser);
 
     /**

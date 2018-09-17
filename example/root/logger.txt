@@ -1,14 +1,16 @@
-# project: name1
-# detail: detail1
-# volume: 123
+#
 
 ..
 file12321
 
-*folder2
-file10
-
 *folder2_1
+file4
+file5
+file 6
+file 7
 file8
 file9
+file10
+
+*folder2
 file10

@@ -5,18 +5,19 @@ import com.khodyka.filechecker.logic.parser.FileParser;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.khodyka.filechecker.logic.ConfigFileSymbols.INCLUDE_META_INFO_PREFIX;
 import static com.khodyka.filechecker.logic.ConfigFileUtils.isFolderDefinition;
-import static com.khodyka.filechecker.logic.ConfigFileUtils.isIncludedMetaInfoDefinition;
 
 public class CheckerEngine {
 
     private static final String LOGFILE_NAME = "/logger.txt";
 
     private final FolderIndexer<Map<String, List<String>>> folderIndexer;
-    private final FileParser<List<String>> fileParser;
+    private final FileParser<Map<String, List<String>>> fileParser;
 
     public CheckerEngine(final FolderIndexer folderIndexer, final FileParser fileParser) {
         this.folderIndexer = folderIndexer;
@@ -24,71 +25,36 @@ public class CheckerEngine {
     }
 
     public int checkFiles(final String configFilePath, final String searchFolderPath) {
-        final Map<String, List<String>> folderToFilesIndex = folderIndexer
-                .doIndexFolderTree(searchFolderPath);
-        final List<String> configFileLines = fileParser.parse(configFilePath);
+        final Map<String, List<String>> folderToFilesIndex = folderIndexer.doIndexFolderTree(searchFolderPath);
+        final Map<String, List<String>> configFileLines = fileParser.parse(configFilePath);
         final List<String> missedFilesLoggerLines = new ArrayList<>();
 
-        String currentFolderName = null;
-        List<String> filesInCurrentFolder = null;
+        final List<String> metaInfo = configFileLines.get(INCLUDE_META_INFO_PREFIX);
+        if (isMetaInfoExists(metaInfo)) {
+            missedFilesLoggerLines.addAll(metaInfo);
+            configFileLines.remove(INCLUDE_META_INFO_PREFIX);
+        }
 
-        for (final String configFileLine : configFileLines) {
-            if (isFolderDefinition(configFileLine)) {
-                currentFolderName = configFileLine;
-                filesInCurrentFolder = folderToFilesIndex.get(configFileLine);
-                continue;
+        for (Map.Entry<String, List<String>> folderToFilesConfigEntry : configFileLines.entrySet()) {
+            final String folderName = folderToFilesConfigEntry.getKey();
+            final List<String> filesInFolder = folderToFilesConfigEntry.getValue();
+            final List<String> filesInFolderIndex = folderToFilesIndex.get(folderName);
+
+            if (filesInFolderIndex != null) {
+                filesInFolder.removeAll(filesInFolderIndex);
             }
-            if (filesInCurrentFolder == null) {
-                final List<String> folderFiles = getFolderFilesDefinedInConfigFile(currentFolderName, configFileLines);
-                missedFilesLoggerLines.addAll(folderFiles);
-            }
-            if (isIncludedMetaInfoDefinition(configFileLine)) {
-                missedFilesLoggerLines.add(configFileLine);
-            }
-            if (isFileMissed(filesInCurrentFolder, configFileLine)) {
-                if (isFolderNameNotLoggedYet(currentFolderName, missedFilesLoggerLines)) {
-                    missedFilesLoggerLines.add(currentFolderName);
-                }
-                missedFilesLoggerLines.add(configFileLine);
+            if (!filesInFolder.isEmpty()) {
+                missedFilesLoggerLines.add(folderName);
+                missedFilesLoggerLines.addAll(filesInFolder);
             }
         }
         writeMissedFilesToLogFile(searchFolderPath, missedFilesLoggerLines);
         return 1;
     }
 
-
-    private boolean isFileMissed(final List<String> filesInCurrentFolder, final String configFileLine) {
-        return filesInCurrentFolder != null
-                && !filesInCurrentFolder.contains(configFileLine);
-    }
-
-    private boolean isFolderNameNotLoggedYet(final String configLine, final List<String> loggerFileLines) {
-        return !loggerFileLines.contains(configLine);
-    }
-
-    private List<String> getFolderFilesDefinedInConfigFile(final String folderName, final List<String> configFileLines) {
-        final List<String> folderFiles = new ArrayList<>();
-        for (String line : configFileLines) {
-            if (line.equals(folderName)) {
-                folderFiles.add(line);
-                continue;
-            }
-            if (isFolderDefinition(line)) {
-                break;
-            }
-            if (isIncludedMetaInfoDefinition(line)) {
-                continue;
-            }
-            if (!line.isEmpty()) {
-                folderFiles.add(line);
-            }
-        }
-        return folderFiles;
-    }
-
-    private void writeMissedFilesToLogFile(final String searchFolderPath, final List<String> missedFiles) {
+    private void writeMissedFilesToLogFile(final String searchFolderPath, final List<String> lines) {
         try (PrintWriter printWriter = new PrintWriter(searchFolderPath + LOGFILE_NAME)) {
-            missedFiles.forEach(line -> {
+            lines.forEach(line -> {
                 if (isFolderDefinition(line)) {
                     printWriter.println();
                 }
@@ -97,5 +63,9 @@ public class CheckerEngine {
         } catch (IOException e) {
             throw new RuntimeException("Ошибка записи в лог файл", e);
         }
+    }
+
+    private boolean isMetaInfoExists(final List<String> metaInfo) {
+        return metaInfo != null && !metaInfo.isEmpty();
     }
 }
